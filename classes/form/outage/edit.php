@@ -120,6 +120,7 @@ class edit extends moodleform {
      */
     public function get_data() {
         // Fetch data and check if description is the correct format.
+        $outage = new outage();
         $data = parent::get_data();
         if (is_null($data)) {
             return null;
@@ -135,6 +136,7 @@ class edit extends moodleform {
             'stoptime' => $data->starttime + $data->outageduration,
             'warntime' => $data->starttime - $data->warningduration,
             'title' => $data->title,
+            'outagemailinglist' => $outage->get_siteadmin_ids(),
             'description' => $data->description['text'],
         ];
         return new outage($outagedata);
@@ -155,6 +157,7 @@ class edit extends moodleform {
                 'outageduration' => $outage->get_duration_planned(),
                 'warningduration' => $outage->get_warning_duration(),
                 'title' => $outage->title,
+                'outagemailinglist' => $outage->get_siteadmin_ids(),
                 'description' => ['text' => $outage->description, 'format' => '1'],
             ]);
         } else {

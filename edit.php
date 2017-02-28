@@ -33,6 +33,7 @@ require_once(__DIR__.'/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->libdir.'/formslib.php');
 
+global $DB;
 admin_externalpage_setup('auth_outage_manage');
 $PAGE->set_url(new moodle_url('/auth/outage/manage.php'));
 
@@ -42,7 +43,18 @@ if ($mform->is_cancelled()) {
     redirect('/auth/outage/manage.php');
 } else if ($outage = $mform->get_data()) {
     $id = outagedb::save($outage);
-    redirect('/auth/outage/manage.php#auth_outage_id_'.$id);
+
+    $userid = explode(',', $outage->outagemailinglist);
+    $userobjects = array();
+    foreach ($userid as $uid) {
+        $userobjects[] = $DB->get_record('user', array('id'=>$uid));
+    }
+    $adminuser = $DB->get_record('user', array('id'=>'2'));
+    foreach ($userobjects as $userobject) {
+        email_to_user($userobject, $adminuser, $outage->title, $outage->description);
+    }
+
+    redirect($CFG->wwwroot . '/auth/outage/manage.php#auth_outage_id_'.$id);
 }
 
 $clone = optional_param('clone', 0, PARAM_INT);
@@ -67,6 +79,7 @@ if ($clone) {
         'stoptime' => $time + $config->default_duration,
         'warntime' => $time - $config->default_warning_duration,
         'title' => $config->default_title,
+        'outagemailinglist' => $config->mailinglist,
         'description' => $config->default_description,
     ]);
     $action = 'outagecreate';

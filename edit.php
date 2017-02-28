@@ -33,6 +33,7 @@ require_once(__DIR__.'/../../config.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->libdir.'/formslib.php');
 
+global $DB;
 admin_externalpage_setup('auth_outage_manage');
 $PAGE->set_url(new moodle_url('/auth/outage/manage.php'));
 
@@ -43,38 +44,14 @@ if ($mform->is_cancelled()) {
 } else if ($outage = $mform->get_data()) {
     $id = outagedb::save($outage);
 
-    require_once($CFG->libdir.'/phpmailer/class.phpmailer.php');
-    require_once($CFG->libdir.'/phpmailer/class.smtp.php');
-    $mailer = new PHPMailer();
-    $mailer->isSMTP();
-
-    $mailinglist = explode(',', $outage->outagemailinglist);
-
-    if ($CFG->smtphosts) {
-        $host = explode(':', $CFG->smtphosts);
-        $hostname = $host[0];
-        $hostport = (int) $host[1];
-        $mailer->Host = $hostname;
-        $mailer->SMTPAuth = true;
-        $mailer->SMTPSecure = $CFG->smtpsecure;
-        $mailer->Port = $hostport;
-        $mailer->Username = $CFG->smtpuser;
-        $mailer->Password = $CFG->smtppass;
-        $mailer->Subject = $outage->title;
-        $mailer->From = $CFG->noreplyaddress;
-        $mailer->FromName = $CFG->wwwroot;
-        $mailer->Priority = 1;
-        $mailer->CharSet = 'UTF-8';
-        $mailer->Encoding = '8bit';
-        $mailer->ContentType = 'text/html; charset=utf-8\r\n';
-        $mailer->WordWrap = 900;
-        foreach ($mailinglist as $emailaddress) {
-            $mailer->AddAddress(trim($emailaddress));
-        }
-        $mailer->isHTML(true);
-        $mailer->Body = $outage->description;
-        $mailer->Send();
-        $mailer->SmtpClose();
+    $userid = explode(',', $outage->outagemailinglist);
+    $userobjects = array();
+    foreach ($userid as $uid) {
+        $userobjects[] = $DB->get_record('user', array('id'=>$uid));
+    }
+    $adminuser = $DB->get_record('user', array('id'=>'2'));
+    foreach ($userobjects as $userobject) {
+        email_to_user($userobject, $adminuser, $outage->title, $outage->description);
     }
 
     redirect($CFG->wwwroot . '/auth/outage/manage.php#auth_outage_id_'.$id);

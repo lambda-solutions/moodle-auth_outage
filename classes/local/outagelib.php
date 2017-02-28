@@ -141,11 +141,7 @@ class outagelib {
      * @return mixed[] Default configuration.
      */
     public static function get_config_defaults() {
-        $admins = get_admins();
-        $emails = array();
-        foreach ($admins as $admin) {
-            $emails[] = $admin->email;
-        }
+        $outage = new outage();
         return [
             'allowedips'               => '',
             'css'                      => '',
@@ -155,7 +151,7 @@ class outagelib {
             'default_title'            => get_string('defaulttitlevalue', 'auth_outage'),
             'default_description'      => get_string('defaultdescriptionvalue', 'auth_outage'),
             'remove_selectors'         => ".usermenu\n.logininfo\n.homelink",
-            'mailinglist'              => implode("\n", $emails),
+            'mailinglist'              => $outage->get_siteadmin_ids()
         ];
     }
 

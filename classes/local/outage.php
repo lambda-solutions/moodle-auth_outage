@@ -263,14 +263,14 @@ class outage {
      * Gets emails from all site admins
      * @return string site admin emails
      */
-    public function get_siteadmin_emails() {
+    public function get_siteadmin_ids() {
         $admins = get_admins();
-        $emails = array();
+        $adminids = array();
         foreach ($admins as $admin) {
-            $emails[] = $admin->email;
+            $adminids[] = $admin->id;
         }
-        $email = implode(",", $emails);
-        return $email;
+        $adminid = implode(",", $adminids);
+        return $adminid;
     }
 
     /**

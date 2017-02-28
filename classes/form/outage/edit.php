@@ -78,9 +78,6 @@ class edit extends moodleform {
         $mform->setType('title', PARAM_TEXT);
         $mform->addHelpButton('title', 'title', 'auth_outage');
 
-        $mform->addElement('textarea', 'outagemailinglist', get_string('mailinglist', 'auth_outage'), 'cols="60", rows="4"');
-        $mform->addHelpButton('outagemailinglist', 'mailinglist', 'auth_outage');
-
         $mform->addElement('editor', 'description', get_string('description', 'auth_outage'));
         $mform->addHelpButton('description', 'description', 'auth_outage');
 
@@ -123,6 +120,7 @@ class edit extends moodleform {
      */
     public function get_data() {
         // Fetch data and check if description is the correct format.
+        $outage = new outage();
         $data = parent::get_data();
         if (is_null($data)) {
             return null;
@@ -138,7 +136,7 @@ class edit extends moodleform {
             'stoptime' => $data->starttime + $data->outageduration,
             'warntime' => $data->starttime - $data->warningduration,
             'title' => $data->title,
-            'outagemailinglist' => $data->outagemailinglist,
+            'outagemailinglist' => $outage->get_siteadmin_ids(),
             'description' => $data->description['text'],
         ];
         return new outage($outagedata);
@@ -159,7 +157,7 @@ class edit extends moodleform {
                 'outageduration' => $outage->get_duration_planned(),
                 'warningduration' => $outage->get_warning_duration(),
                 'title' => $outage->title,
-                'outagemailinglist' => $outage->get_siteadmin_emails(),
+                'outagemailinglist' => $outage->get_siteadmin_ids(),
                 'description' => ['text' => $outage->description, 'format' => '1'],
             ]);
         } else {

@@ -60,6 +60,9 @@ class edit extends moodleform {
         $mform->addElement('checkbox', 'autostart', get_string('autostart', 'auth_outage'));
         $mform->addHelpButton('autostart', 'autostart', 'auth_outage');
 
+        $mform->addElement('checkbox', 'sendemail', get_string('sendemail', 'auth_outage'));
+        $mform->addHelpButton('sendemail', 'sendemail', 'auth_outage');
+
         $mform->addElement('duration', 'warningduration', get_string('warningduration', 'auth_outage'));
         $mform->addHelpButton('warningduration', 'warningduration', 'auth_outage');
 
@@ -132,6 +135,7 @@ class edit extends moodleform {
         $outagedata = [
             'id' => ($data->id === 0) ? null : $data->id,
             'autostart' => (isset($data->autostart) && ($data->autostart == 1)),
+            'sendemail' => (isset($data->sendemail) && ($data->sendemail == 1)),
             'starttime' => $data->starttime,
             'stoptime' => $data->starttime + $data->outageduration,
             'warntime' => $data->starttime - $data->warningduration,
@@ -153,6 +157,7 @@ class edit extends moodleform {
             $this->_form->setDefaults([
                 'id' => $outage->id,
                 'autostart' => $outage->autostart,
+                'sendemail' => $outage->sendemail,
                 'starttime' => $outage->starttime,
                 'outageduration' => $outage->get_duration_planned(),
                 'warningduration' => $outage->get_warning_duration(),

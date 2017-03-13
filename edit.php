@@ -44,14 +44,16 @@ if ($mform->is_cancelled()) {
 } else if ($outage = $mform->get_data()) {
     $id = outagedb::save($outage);
 
-    $userid = explode(',', $outage->outagemailinglist);
-    $userobjects = array();
-    foreach ($userid as $uid) {
-        $userobjects[] = $DB->get_record('user', array('id'=>$uid));
-    }
-    $adminuser = $DB->get_record('user', array('id'=>'2'));
-    foreach ($userobjects as $userobject) {
-        email_to_user($userobject, $adminuser, $outage->title, $outage->description);
+    if ($outage->sendemail == true) {
+        $userid = explode(',', $outage->outagemailinglist);
+        $userobjects = array();
+        foreach ($userid as $uid) {
+            $userobjects[] = $DB->get_record('user', array('id'=>$uid));
+        }
+        $adminuser = $DB->get_record('user', array('id'=>'2'));
+        foreach ($userobjects as $userobject) {
+            email_to_user($userobject, $adminuser, $outage->title, $outage->description);
+        }
     }
 
     redirect($CFG->wwwroot . '/auth/outage/manage.php#auth_outage_id_'.$id);

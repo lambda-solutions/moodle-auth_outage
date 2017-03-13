@@ -75,6 +75,11 @@ class outage {
     public $autostart = null;
 
     /**
+     * @var bool|null Send email notification to admins.
+     */
+    public $sendemail = null;
+
+    /**
      * @var int|null Start Time timestamp.
      */
     public $starttime = null;
@@ -300,11 +305,13 @@ class outage {
     private function adjust_field_types() {
         // Adjust int fields.
         $fs = ['createdby', 'id', 'lastmodified', 'modifiedby', 'starttime', 'stoptime', 'warntime', 'finished'];
+        $boolfields = ['autostart', 'sendemail'];
         foreach ($fs as $f) {
             $this->$f = ($this->$f === null) ? null : (int)$this->$f;
         }
 
         // Adjust bool fields.
         $this->autostart = ($this->autostart === null) ? null : (bool)$this->autostart;
+        $this->sendemail = ($this->sendemail === null) ? null : (bool)$this->sendemail;
     }
 }
